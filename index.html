@@ -964,13 +964,11 @@
 }
 
     function startRealtimeUpdates() {
-      supabaseClient
-        .channel('public:reports')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'reports' }, function onChange() {
-          loadReports();
-        })
-        .subscribe();
-    }
+  // Fetch new data every 30 seconds to keep the report list fresh
+  setInterval(() => {
+    loadReports();
+  }, 30000); // 30 seconds = 30,000 milliseconds
+}
 
     function init() {
       // Ensure a submitter_id exists right away (used for rate limits? no, but good practice)
