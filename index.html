@@ -842,34 +842,47 @@
       browseMessage.className = 'message';
     }
 
-    async function loadReports() {
+   async function loadReports() {
   browseMessage.textContent = 'Loading reports...';
   browseMessage.className = 'message';
 
-  const WORKER_URL = 'https://rynadjyluvulhyqnezei.supabase.co/rest/v1/reports?select=*';
+  const SUPABASE_API =
+    'https://rynadjyluvulhyqnezei.supabase.co/rest/v1/reports?select=*';
 
   try {
-    const response = await fetch(WORKER_URL);
+    const response = await fetch(SUPABASE_API, {
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      },
+    });
+
     if (!response.ok) {
-      throw new Error(`Worker returned ${response.status}`);
+      throw new Error(`Supabase returned ${response.status}`);
     }
+
     const reports = await response.json();
 
     if (!Array.isArray(reports)) {
-      throw new Error('Worker did not return an array');
+      throw new Error('Supabase did not return an array');
     }
 
     allReports = reports;
     updateReportCount(allReports.length);
     applySearchFilter();
+
     browseMessage.textContent = allReports.length
       ? `Loaded ${allReports.length} report(s).`
       : 'No reports yet. Be the first to submit.';
     browseMessage.className = 'message';
+
   } catch (error) {
-    console.error('Failed to load reports via Worker:', error);
-    browseMessage.textContent = 'Unable to load reports right now. Please try again in a moment.';
+    console.error('Failed to load reports from Supabase:', error);
+
+    browseMessage.textContent =
+      'Unable to load reports right now. Please try again in a moment.';
     browseMessage.className = 'message error';
+
     allReports = [];
     updateReportCount(0);
     renderReportRows([]);
